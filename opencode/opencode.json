@@ -1,0 +1,48 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "compaction": { "auto": true, "buffer": 13672 },
+  "provider": {
+    "lmstudio": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LM Studio (local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:1234/v1"
+      },
+      "models": {
+        "qwen3.6-27b": {
+          "name": "Qwen 3.6 27b (local)",
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        },
+        "bonsai-27b": {
+          "name": "Bonsai 27b (local)",
+          "limit": {
+            "context": 262144,
+            "output": 8192
+          }
+        }
+      }
+    },
+    "strata": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Strata (local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:8080/v1"
+      },
+      "models": {
+        "qwen3.8-flash-next-iq2_xs": {
+          "name": "Qwen3.8flash (local)",
+          "tool_call": true,
+          "reasoning": true,
+          "limit": {
+            "context": 65536,
+            "input": 57344,
+            "output": 8192
+          }
+        }
+      }
+    }
+  }
+}
