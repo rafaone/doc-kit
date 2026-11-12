@@ -14,6 +14,19 @@ that resume where they stopped. In each repository: `docs/dev/` (developer docs)
    - `opencode/opencode.json` only if you have none. To replace yours (with a backup): `./install.sh --json`
 3. Test: `opencode run "say hi" < /dev/null`
 
+## Privacy: the code must only reach the local model
+
+Three layers keep opencode on Strata:
+- `opencode.json` sets `model` and `small_model` to Strata and
+  `enabled_providers` to `strata` and `lmstudio` only, so cloud providers
+  (including opencode's free ones) are not available at all.
+- Each agent pins `model: strata/...` in its frontmatter.
+- `doc-loop` always passes `--model`, refuses non-local models, and stops if the
+  Strata log (`STRATA_LOG`) did not grow during a session.
+
+Check what a past session used:
+`grep -rhoE '"(providerID|modelID)": *"[^"]*"' ~/.local/share/opencode/storage | sort | uniq -c`
+
 ## Use in a project
 
 1. `cd` into the repository and open `opencode`.

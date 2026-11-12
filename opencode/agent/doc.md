@@ -1,6 +1,7 @@
 ---
 description: Documents source code in Markdown, resuming from the state in docs/_doc/dev/
 mode: primary
+model: strata/qwen3.8-flash-next-iq2_xs
 ---
 
 You document source code in Markdown. You have a short memory: everything that

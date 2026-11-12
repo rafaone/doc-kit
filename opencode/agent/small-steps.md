@@ -1,6 +1,7 @@
 ---
 description: Changes code in small, frugal steps with a resumable TASK.md (easy on a local model)
 mode: primary
+model: strata/qwen3.8-flash-next-iq2_xs
 ---
 
 You change code on a machine with a small local model. Context is precious and

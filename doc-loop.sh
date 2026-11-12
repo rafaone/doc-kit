@@ -9,12 +9,28 @@
 #   RESTART_CMD  (e.g. "systemctl --user restart strata") — used if the server goes down
 #   ITEM_TIMEOUT (default 45m)
 #   MAX_STALL    (default 3) — consecutive attempts without progress before giving up
+#   DOC_MODEL    (default strata/qwen3.8-flash-next-iq2_xs) — always passed to opencode
+#   STRATA_LOG   (default /opt/Strata/strata-iq2_xs.log) — must grow during each session,
+#                otherwise the loop stops: opencode did not talk to Strata.
+#                STRATA_LOG=none disables this check.
 set -u
 
 REPO="${1:?pass the repository folder}"
 STRATA_URL="${STRATA_URL:-http://127.0.0.1:8080}"
 ITEM_TIMEOUT="${ITEM_TIMEOUT:-45m}"
 MAX_STALL="${MAX_STALL:-3}"
+DOC_MODEL="${DOC_MODEL:-strata/qwen3.8-flash-next-iq2_xs}"
+STRATA_LOG="${STRATA_LOG:-/opt/Strata/strata-iq2_xs.log}"
+
+# Privacy guard: only a local model may receive the code.
+case "$DOC_MODEL" in
+  strata/*|lmstudio/*) ;;
+  *) echo "DOC_MODEL=$DOC_MODEL is not a local provider. Refusing to run."; exit 3;;
+esac
+if [ "$STRATA_LOG" != none ] && [ ! -f "$STRATA_LOG" ]; then
+  echo "STRATA_LOG not found: $STRATA_LOG (set it, or STRATA_LOG=none to skip the check)"; exit 3
+fi
+log_size() { [ "$STRATA_LOG" = none ] && echo 0 || stat -c %s "$STRATA_LOG"; }
 
 if [ "${2:-}" = "--pre-manual" ]; then
   AGENT=pre-manual; STATE_DIR=docs/_doc/manual; PLAN_CMD=/doc-pre-manual-plan
@@ -57,7 +73,12 @@ while pending; do
   before=$(done_count)
   echo "$(date '+%F %T') new session (done: $before)" | tee -a "$LOG"
 
-  timeout "$ITEM_TIMEOUT" opencode run --agent "$AGENT" "$PROMPT" </dev/null >>"$LOG" 2>&1
+  slog=$(log_size)
+  timeout "$ITEM_TIMEOUT" opencode run --model "$DOC_MODEL" --agent "$AGENT" "$PROMPT" </dev/null >>"$LOG" 2>&1
+  if [ "$STRATA_LOG" != none ] && [ "$(log_size)" -eq "$slog" ]; then
+    echo "$(date '+%F %T') STOP: Strata log did not change, opencode may be using another model" | tee -a "$LOG"
+    exit 3
+  fi
 
   after=$(done_count)
   if [ "$after" -gt "$before" ]; then

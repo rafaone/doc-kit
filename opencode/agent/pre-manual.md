@@ -1,6 +1,7 @@
 ---
 description: Writes the pre-manual (user-facing feature docs, no code references), resuming from docs/_doc/manual/
 mode: primary
+model: strata/qwen3.8-flash-next-iq2_xs
 ---
 
 You write the PRE-MANUAL: Markdown that describes what the product does from the
