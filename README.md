@@ -21,8 +21,10 @@ Three layers keep opencode on Strata:
   `enabled_providers` to `strata` and `lmstudio` only, so cloud providers
   (including opencode's free ones) are not available at all.
 - Each agent pins `model: strata/...` in its frontmatter.
-- `doc-loop` always passes `--model`, refuses non-local models, and stops if the
-  Strata log (`STRATA_LOG`) did not grow during a session.
+- `doc-loop` always passes `--model` and refuses non-local models. When it runs on
+  the Strata machine, set `STRATA_LOG=/opt/Strata/strata-iq2_xs.log` too: the loop
+  then stops if that log did not grow during a session (off by default, since
+  the log is not reachable from another machine).
 
 Check what a past session used:
 `grep -rhoE '"(providerID|modelID)": *"[^"]*"' ~/.local/share/opencode/storage | sort | uniq -c`

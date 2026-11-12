@@ -10,9 +10,9 @@
 #   ITEM_TIMEOUT (default 45m)
 #   MAX_STALL    (default 3) — consecutive attempts without progress before giving up
 #   DOC_MODEL    (default strata/qwen3.8-flash-next-iq2_xs) — always passed to opencode
-#   STRATA_LOG   (default /opt/Strata/strata-iq2_xs.log) — must grow during each session,
-#                otherwise the loop stops: opencode did not talk to Strata.
-#                STRATA_LOG=none disables this check.
+#   STRATA_LOG   (default none) — path to the Strata log, e.g. /opt/Strata/strata-iq2_xs.log,
+#                when the loop runs on the Strata machine. If set, it must grow during
+#                each session, otherwise the loop stops: opencode did not talk to Strata.
 set -u
 
 REPO="${1:?pass the repository folder}"
@@ -20,7 +20,7 @@ STRATA_URL="${STRATA_URL:-http://127.0.0.1:8080}"
 ITEM_TIMEOUT="${ITEM_TIMEOUT:-45m}"
 MAX_STALL="${MAX_STALL:-3}"
 DOC_MODEL="${DOC_MODEL:-strata/qwen3.8-flash-next-iq2_xs}"
-STRATA_LOG="${STRATA_LOG:-/opt/Strata/strata-iq2_xs.log}"
+STRATA_LOG="${STRATA_LOG:-none}"
 
 # Privacy guard: only a local model may receive the code.
 case "$DOC_MODEL" in
@@ -28,7 +28,7 @@ case "$DOC_MODEL" in
   *) echo "DOC_MODEL=$DOC_MODEL is not a local provider. Refusing to run."; exit 3;;
 esac
 if [ "$STRATA_LOG" != none ] && [ ! -f "$STRATA_LOG" ]; then
-  echo "STRATA_LOG not found: $STRATA_LOG (set it, or STRATA_LOG=none to skip the check)"; exit 3
+  echo "STRATA_LOG not found: $STRATA_LOG (fix the path, or STRATA_LOG=none to skip the check)"; exit 3
 fi
 log_size() { [ "$STRATA_LOG" = none ] && echo 0 || stat -c %s "$STRATA_LOG"; }
 
